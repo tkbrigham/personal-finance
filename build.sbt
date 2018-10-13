@@ -1,7 +1,7 @@
-name := """personal-finance"""
+name := "personal-finance"
 organization := "com.thomas.brigham"
 
-version := "1.0-SNAPSHOT"
+version := "0.1-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
