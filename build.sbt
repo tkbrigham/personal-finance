@@ -4,6 +4,9 @@ organization := "com.thomas.brigham"
 version := "0.1-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
+  .settings(
+    CustomTasks.all
+  )
 
 scalaVersion := "2.12.6"
 
