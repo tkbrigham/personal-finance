@@ -11,3 +11,6 @@ dist
 /.project
 /.settings
 /RUNNING_PID
+
+/conf/*
+!/conf/application.conf
