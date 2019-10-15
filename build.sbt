@@ -8,10 +8,19 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
     CustomTasks.all
   )
 
-scalaVersion := "2.12.6"
+scalaVersion := "2.12.7"
 
-libraryDependencies += guice
-libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
+lazy val slickVersion = "3.2.2"
+
+resolvers += Resolver.jcenterRepo
+
+libraryDependencies ++= Seq(
+  "com.typesafe.slick" %% "slick" % slickVersion,
+  "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2",
+  "com.liyaos" %% "scala-forklift-slick" % "0.3.1",
+  guice
+)
 
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "com.thomas.brigham.controllers._"
