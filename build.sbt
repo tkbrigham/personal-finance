@@ -8,7 +8,6 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
     CustomTasks.all
   )
 
-
 lazy val slickVersion = "3.2.2"
 
 resolvers += Resolver.jcenterRepo
@@ -17,9 +16,8 @@ libraryDependencies ++= Seq(
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2",
   guice,
   jdbc,
-  "org.postgresql" % "postgresql" % "9.3-1102-jdbc4",
+  "org.postgresql" % "postgresql" % "9.4-1201-jdbc41",
 )
-
 
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "com.thomas.brigham.controllers._"
