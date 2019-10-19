@@ -31,9 +31,8 @@ class HomeController @Inject()(db: Database, cc: ControllerComponents)
     println("hi it me the guy")
     println("oh no")
     var outString = "Number is "
-    val conn = db.getConnection()
 
-    try {
+    db.withTransaction { conn =>
       val stmt = conn.createStatement
       val col = "da_count"
       val rs = stmt.executeQuery(s"SELECT count(*) as $col from pg_stat_activity")
@@ -41,16 +40,15 @@ class HomeController @Inject()(db: Database, cc: ControllerComponents)
       while (rs.next()) {
         outString += rs.getString(col)
       }
-    } finally {
-      conn.close()
+
+      val nested = Nested(6, outString)
+      val t = Test("first", "second", 3.8, nested)
+      Ok(Json.toJson(t))
     }
-    val nested = Nested(6, outString)
-    val t = Test("first", "second", 3.8, nested)
-    Ok(Json.toJson(t))
   }
 
-//  def index = Action {
-//    var outString = "Number is "
+    //  def index = Action {
+    //    var outString = "Number is "
 //    println("hi it me the guy")
 //    println("oh no")
 //    val conn = db.getConnection()
