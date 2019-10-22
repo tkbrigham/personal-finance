@@ -13,14 +13,8 @@ lazy val slickVersion = "3.2.2"
 resolvers += Resolver.jcenterRepo
 
 libraryDependencies ++= Seq(
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2",
-  guice,
   jdbc,
+  evolutions,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2",
   "org.postgresql" % "postgresql" % "9.4-1201-jdbc41",
 )
-
-// Adds additional packages into Twirl
-//TwirlKeys.templateImports += "com.thomas.brigham.controllers._"
-
-// Adds additional packages into conf/routes
-// play.sbt.routes.RoutesKeys.routesImport += "com.thomas.brigham.binders._"

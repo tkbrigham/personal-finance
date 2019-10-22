@@ -13,6 +13,7 @@ import play.api.libs.json.{Format, Json}
 class HomeController @Inject()(db: Database, cc: ControllerComponents)
   extends AbstractController(cc) {
 
+
   /**
     * Create an Action to render an HTML page.
     *
@@ -28,17 +29,16 @@ class HomeController @Inject()(db: Database, cc: ControllerComponents)
     implicit val nestedReads: Format[Nested] = Json.format[Nested]
     implicit val residentReads: Format[Test] = Json.format[Test]
 
-    println("hi it me the guy")
-    println("oh no")
-    var outString = "Number is "
+    // TODO https://www.playframework.com/documentation/2.7.x/ScalaLogging
 
     db.withTransaction { conn =>
       val stmt = conn.createStatement
       val col = "da_count"
       val rs = stmt.executeQuery(s"SELECT count(*) as $col from pg_stat_activity")
 
+      var outString = ""
       while (rs.next()) {
-        outString += rs.getString(col)
+        outString = rs.getString(col)
       }
 
       val nested = Nested(6, outString)
