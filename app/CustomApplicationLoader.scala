@@ -37,7 +37,7 @@ import controllers.HomeController
 import javax.inject.Inject
 import routers.HomeRouter
 import play.api.ApplicationLoader.Context
-import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext}
+import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator}
 import play.api.db.{DBComponents, HikariCPComponents}
 import play.api.db.evolutions.EvolutionsComponents
 import play.api.routing.Router.Routes
@@ -47,6 +47,9 @@ import play.api.routing.sird._
 
 class MyApplicationLoader extends ApplicationLoader {
   def load(context: ApplicationLoader.Context): Application = {
+    LoggerConfigurator(context.environment.classLoader).foreach {
+      _.configure(context.environment, context.initialConfiguration, Map.empty)
+    }
     new AppComponents(context).application
   }
 }

@@ -1,6 +1,7 @@
 package controllers
 
 import javax.inject._
+import play.api.Logging
 import play.api.db._
 import play.api.mvc._
 import play.api.libs.json.{Format, Json}
@@ -11,7 +12,8 @@ import play.api.libs.json.{Format, Json}
   */
 @Singleton
 class HomeController @Inject()(db: Database, cc: ControllerComponents)
-  extends AbstractController(cc) {
+  extends AbstractController(cc)
+    with Logging {
 
 
   /**
@@ -28,6 +30,12 @@ class HomeController @Inject()(db: Database, cc: ControllerComponents)
   def index() = Action { implicit request: Request[AnyContent] =>
     implicit val nestedReads: Format[Nested] = Json.format[Nested]
     implicit val residentReads: Format[Test] = Json.format[Test]
+
+    logger.error("error")
+    logger.warn("warn")
+    logger.info("info")
+    logger.debug("debug")
+    logger.trace("trace")
 
     // TODO https://www.playframework.com/documentation/2.7.x/ScalaLogging
 
