@@ -40,7 +40,6 @@ import play.api.ApplicationLoader.Context
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext}
 import play.api.db.{DBComponents, HikariCPComponents}
 import play.api.db.evolutions.EvolutionsComponents
-import play.api.mvc.{ControllerComponents, DefaultControllerComponents, Results}
 import play.api.routing.Router.Routes
 import play.api.routing.{Router, SimpleRouter}
 import play.filters.HttpFiltersComponents

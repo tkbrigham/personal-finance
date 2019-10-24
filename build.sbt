@@ -8,8 +8,6 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
     CustomTasks.all
   )
 
-lazy val slickVersion = "3.2.2"
-
 resolvers += Resolver.jcenterRepo
 
 libraryDependencies ++= Seq(
