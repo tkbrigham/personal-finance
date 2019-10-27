@@ -13,6 +13,6 @@ resolvers += Resolver.jcenterRepo
 libraryDependencies ++= Seq(
   jdbc,
   evolutions,
+  "org.postgresql" % "postgresql" % "42.2.8",
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2",
-  "org.postgresql" % "postgresql" % "9.4-1201-jdbc41",
 )
