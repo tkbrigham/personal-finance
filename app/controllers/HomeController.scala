@@ -2,10 +2,9 @@ package controllers
 
 import javax.inject._
 import play.api.Logging
-import play.api.db.Database
+import play.api.db.{DBApi, Database}
 import play.api.mvc._
 import play.api.libs.json.{Format, Json}
-
 import models.UserTable
 
 @Singleton
@@ -26,7 +25,7 @@ class HomeController @Inject()(db: Database, cc: ControllerComponents)
     logger.debug("debug")
     logger.trace("trace")
 
-    var outString = new UserTable(db).all()
+    val outString = new UserTable(db).all()
 
     val nested = Nested(6, outString)
     val t = Test("first", "second", 3.8, nested)

@@ -1,21 +1,23 @@
 package models
 
 import javax.inject._
-import play.api.Logging
+import play.api.{Configuration, Logging}
 import play.api.db._
 import play.api.mvc._
+
+import play.api.libs._
 
 import scala.reflect._
 import scala.reflect.runtime.universe._
 
 object User {
-  def fromParams(m: scala.collection.mutable.Map[String,AnyRef]): User =
+  def fromParams(m: Map[String,AnyRef]): User =
     Model.fromParams[User](m)
 }
 
 case class User(id: Int, email: String, password: Option[String]) extends Model[User]
 
-class UserTable @Inject()(db: Database) {
+class UserTable(db: Database) {
   def all(): String = {
     val testUser = new User(2, "test", None)
 
@@ -23,9 +25,7 @@ class UserTable @Inject()(db: Database) {
       val stmt = conn.createStatement
       val rs = stmt.executeQuery(s"SELECT * from users")
 
-      val meta = rs.getMetaData
-
-      val paramList = testUser.rsToParamList(rs)
+      val paramList = Model.rsToParamList(rs)
       val userList = paramList.map(params => User.fromParams(params))
       val paramListIt = userList.iterator
 

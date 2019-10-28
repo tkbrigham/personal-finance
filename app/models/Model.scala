@@ -6,7 +6,7 @@ import scala.reflect.runtime.universe._
 import java.sql.ResultSet
 
 object Model {
-  def fromParams[T: TypeTag: ClassTag](m: scala.collection.mutable.Map[String,AnyRef]): T = {
+  def fromParams[T: TypeTag: ClassTag](m: Map[String,AnyRef]): T = {
     val rm = runtimeMirror(classTag[T].runtimeClass.getClassLoader)
     val classTest = typeOf[T].typeSymbol.asClass
     val classMirror = rm.reflectClass(classTest)
@@ -30,10 +30,6 @@ object Model {
 
     def loop(rs: ResultSet): Stream[Map[String,AnyRef]] = {
       rs.next()
-//      val map = scala.collection.mutable.Map.empty[String,AnyRef]
-//      for (i <- 1 to numCols) {
-//        map.put(md.getColumnName(i), rs.getObject(i))
-//      }
 
       val map = (1 to numCols)
         .foldLeft(Map[String,AnyRef]())((m, idx) => m + (md.getColumnName(idx) -> rs.getObject(idx)))
