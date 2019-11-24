@@ -38,18 +38,21 @@ import javax.inject.Inject
 import routers.HomeRouter
 import play.api.ApplicationLoader.Context
 import play.api.{Application, ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator}
-import play.api.db.{DBComponents, HikariCPComponents}
+import play.api.db.{DBComponents, Database, HikariCPComponents}
 import play.api.db.evolutions.EvolutionsComponents
 import play.api.routing.Router.Routes
 import play.api.routing.{Router, SimpleRouter}
 import play.filters.HttpFiltersComponents
 import play.api.routing.sird._
 
+import scalikejdbc.config._
+
 class MyApplicationLoader extends ApplicationLoader {
   def load(context: ApplicationLoader.Context): Application = {
     LoggerConfigurator(context.environment.classLoader).foreach {
       _.configure(context.environment, context.initialConfiguration, Map.empty)
     }
+    DBs.setupAll()
     new AppComponents(context).application
   }
 }
@@ -68,10 +71,4 @@ class AppComponents(context: Context)
   lazy val router: Router = Router.from {
     case GET(p"/") => controller.index()
   }
-}
-
-class AppRouter @Inject()(homeRouter: HomeRouter) extends SimpleRouter {
-
-  // Composes both routers with spaRouter having precedence.
-  override def routes: Routes = homeRouter.routes
 }

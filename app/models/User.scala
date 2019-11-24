@@ -1,55 +1,23 @@
 package models
 
-import javax.inject._
-import play.api.{Configuration, Logging}
-import play.api.db._
-import play.api.mvc._
-
-import play.api.libs._
-
-import scala.reflect._
-import scala.reflect.runtime.universe._
-
-object User {
-  def fromParams(m: Map[String,AnyRef]): User =
-    Model.fromParams[User](m)
-}
+import scalikejdbc._
 
 case class User(id: Int, email: String, password: Option[String]) extends Model[User]
 
-class UserTable(db: Database) {
-  def all(): String = {
-    val testUser = new User(2, "test", None)
+trait AutoSyntax[A] {
+  type Syntax = scalikejdbc.QuerySQLSyntaxProvider[scalikejdbc.SQLSyntaxSupport[A], A]
+}
 
-    db.withTransaction { conn =>
-      val stmt = conn.createStatement
-      val rs = stmt.executeQuery(s"SELECT * from users")
+object User extends SQLSyntaxSupport[User] with AutoSyntax[User] {
+  override val tableName = "users"
+  implicit val session: DBSession = autoSession
+  val u: Syntax = User.syntax("u")
 
-      val paramList = Model.rsToParamList(rs)
-      val userList = paramList.map(params => User.fromParams(params))
-      val paramListIt = userList.iterator
+  def apply(u: SyntaxProvider[User])(rs: WrappedResultSet): User = apply(u.resultName)(rs)
+  def apply(u: ResultName[User])(rs: WrappedResultSet): User =
+    User(rs.int(u.id), rs.string(u.email), rs.stringOpt(u.password))
 
-      println(paramListIt.next())
-      println(paramListIt.next())
-      println(paramListIt.next())
-      println(paramListIt.next())
-
-
-//      rs.next()
-//
-//      for (a <- 1 to meta.getColumnCount) {
-//        println("=========================")
-//        println("columnClassName", meta.getColumnClassName(a))
-//        println("columnDisplaySize", meta.getColumnDisplaySize(a))
-//        println("columnLabel", meta.getColumnLabel(a))
-//        println("columnName", meta.getColumnName(a))
-//        println("columnType", meta.getColumnType(a))
-//        println("columnTypeName", meta.getColumnTypeName(a))
-//        println("tableName", meta.getTableName(a))
-//        println("oooooooooooh", rs.getObject(a))
-//      }
-    }
-
-    testUser.tableName
-  }
+  def findAll(): List[User] = withSQL {
+    select.from(User as u).orderBy(u.id)
+  }.map(User(u)).list().apply()
 }
