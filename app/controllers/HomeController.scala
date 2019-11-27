@@ -5,7 +5,7 @@ import play.api.Logging
 import play.api.db.Database
 import play.api.mvc._
 import play.api.libs.json.{Format, Json}
-import models.User
+import models.{Account, User}
 
 @Singleton
 class HomeController @Inject()(db: Database, cc: ControllerComponents)
@@ -13,7 +13,7 @@ class HomeController @Inject()(db: Database, cc: ControllerComponents)
     with Logging {
 
   case class Nested(one: Int, two: String)
-  case class Test(hi: String, there: String, times: Double, n: Nested)
+  case class Test(user: String, account: String, times: Double, n: Nested)
 
   def index() = Action { implicit request: Request[AnyContent] =>
     implicit val nestedReads: Format[Nested] = Json.format[Nested]
@@ -25,12 +25,21 @@ class HomeController @Inject()(db: Database, cc: ControllerComponents)
     logger.debug("debug")
     logger.trace("trace")
 
-//    val outString = new UserTable(db).all()
+    val user = User.findAll.head
 
-    val outString = User.findAll.head.email
+    val user3 = User.findAll3.head
+    println("found user3")
+    println(user3)
 
-    val nested = Nested(6, outString)
-    val t = Test("first", "second", 3.8, nested)
+    val user4 = User.findById(3)
+    println("found user4")
+    println(user4)
+
+    val userString = user.email
+    val accountString = Account.findAll.head.name
+
+    val nested = Nested(6, "nested")
+    val t = Test(userString, "second", 3.8, nested)
     Ok(Json.toJson(t))
   }
 }

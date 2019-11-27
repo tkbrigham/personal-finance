@@ -4,7 +4,7 @@
 CREATE TABLE accounts (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255),
-  type VARCHAR(255)
+  account_type VARCHAR(255)
 );
 
 -- !Downs
