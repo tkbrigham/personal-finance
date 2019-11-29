@@ -35,8 +35,9 @@ class HomeController @Inject()(db: Database, cc: ControllerComponents)
     println("found user4")
     println(user4)
 
+    Account.printReflectionStuff
+
     val userString = user.email
-    val accountString = Account.findAll.head.name
 
     val nested = Nested(6, "nested")
     val t = Test(userString, "second", 3.8, nested)

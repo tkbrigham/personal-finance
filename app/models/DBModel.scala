@@ -2,6 +2,9 @@ package models
 
 import scalikejdbc._
 
+import scala.reflect._
+import scala.reflect.runtime.universe._
+
 trait AutoSyntax[A] {
   type Syntax = QuerySQLSyntaxProvider[scalikejdbc.SQLSyntaxSupport[A], A]
 }
@@ -31,4 +34,21 @@ trait DBModel[A >: User] extends SQLSyntaxSupport[A] with AutoSyntax[A] {
   lazy val upd: scalikejdbc.UpdateSQLBuilder = update(this)
   lazy val del: scalikejdbc.DeleteSQLBuilder = delete.from(this)
   def findById(id: Int): Option[A] = find(sel.where.eq(tbl.id, id))
+}
+
+
+abstract class DBClass[A : TypeTag : ClassTag] extends SQLSyntaxSupport[A] with AutoSyntax[A] {
+  lazy val printReflectionStuff: Unit = {
+    println("reflection stuff:")
+    constructor.paramLists.flatten.map(p => (p.name, p.typeSignature)).foreach(println)
+  }
+
+  lazy val constructor: MethodSymbol = typeOf[A].decl(termNames.CONSTRUCTOR).asMethod
+
+  lazy val constructorMirror: MethodMirror = {
+    val rm = runtimeMirror(classTag[A].runtimeClass.getClassLoader)
+    val classTest = typeOf[A].typeSymbol.asClass
+    val classMirror = rm.reflectClass(classTest)
+    classMirror.reflectConstructor(constructor)
+  }
 }
