@@ -51,4 +51,62 @@ abstract class DBClass[A : TypeTag : ClassTag] extends SQLSyntaxSupport[A] with 
     val classMirror = rm.reflectClass(classTest)
     classMirror.reflectConstructor(constructor)
   }
+
+//  def from(rs: WrappedResultSet): Unit = fromWrappedResultSet(rs)
+  def fromWrappedResultSet(tbl: SyntaxProvider[A])(rs: WrappedResultSet): Int = {
+//    val constructorTups = constructor
+//      .paramLists
+//      .flatten
+//      .map(p => (p.typeSignature, p.name))
+
+    val resultMap = rs.toMap()
+
+    println("result map coming")
+    println(resultMap)
+    tbl.resultName.namedColumns.map(_.value).foreach(println)
+    tbl.resultName.columns.map(_.value).foreach(println)
+    println(tbl.resultName.column("id"))
+
+    val constructorArgs = constructor.paramLists.flatten.map( (param: Symbol) => {
+      val paramStr = param.name.toString
+      println(paramStr)
+      val snaked = snakify(paramStr)
+      println(snaked)
+      val paramName = tbl.resultName.column(snaked).value
+      println(paramName)
+      if(param.typeSignature <:< typeOf[Option[Any]])
+        resultMap.get(paramName)
+      else
+        resultMap.getOrElse(paramName, throw new IllegalArgumentException("Map is missing required parameter named " + paramName))
+    })
+
+    println(constructorArgs)
+
+    1
+  }
+
+  /// Remove plz
+  implicit val session: DBSession = autoSession
+  override val tableName: String = this.getClass.getSimpleName.toLowerCase().replace('$', 's')
+  val tbl: Syntax = this.syntax(tableName)
+  lazy val sel: scalikejdbc.SelectSQLBuilder[A] = select.from(this as tbl)
+  def printResult = withSQL(sel)
+    .map(fromWrappedResultSet(tbl))
+    .list
+    .apply
+
+  // Lifted from https://github.com/lift/framework/commit/
+  //   f56a814c5d452b0be66f7c37e3f253ed2e283a0c#diff-53a9b63fb8b8d594b37f64186ab2b1e4R104-R116
+  def snakify(name: String): String = {
+    def loop(x : List[Char]) : List[Char] = x match {
+      case c :: rest if Character.isUpperCase(c) => '_' :: Character.toLowerCase(c) :: loop(rest)
+      case c :: rest => c :: loop(rest)
+      case Nil => Nil
+    }
+    if (name.isEmpty)
+      ""
+    else
+      (Character.toLowerCase(name.charAt(0)) :: loop(name.substring(1).toList)).mkString
+  }
 }
+

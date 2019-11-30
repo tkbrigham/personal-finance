@@ -36,6 +36,7 @@ class HomeController @Inject()(db: Database, cc: ControllerComponents)
     println(user4)
 
     Account.printReflectionStuff
+    Account.printResult
 
     val userString = user.email
 
