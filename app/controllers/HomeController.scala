@@ -35,8 +35,7 @@ class HomeController @Inject()(db: Database, cc: ControllerComponents)
     println("found user4")
     println(user4)
 
-    Account.printReflectionStuff
-    Account.printResult
+    println(Account.printResult)
 
     val userString = user.email
 

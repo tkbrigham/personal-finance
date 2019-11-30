@@ -1,9 +1,9 @@
 package models
 
-import scalikejdbc._
-
 import scala.reflect._
 import scala.reflect.runtime.universe._
+
+import scalikejdbc._
 
 trait AutoSyntax[A] {
   type Syntax = QuerySQLSyntaxProvider[scalikejdbc.SQLSyntaxSupport[A], A]
@@ -38,11 +38,6 @@ trait DBModel[A >: User] extends SQLSyntaxSupport[A] with AutoSyntax[A] {
 
 
 abstract class DBClass[A : TypeTag : ClassTag] extends SQLSyntaxSupport[A] with AutoSyntax[A] {
-  lazy val printReflectionStuff: Unit = {
-    println("reflection stuff:")
-    constructor.paramLists.flatten.map(p => (p.name, p.typeSignature)).foreach(println)
-  }
-
   lazy val constructor: MethodSymbol = typeOf[A].decl(termNames.CONSTRUCTOR).asMethod
 
   lazy val constructorMirror: MethodMirror = {
@@ -52,37 +47,19 @@ abstract class DBClass[A : TypeTag : ClassTag] extends SQLSyntaxSupport[A] with 
     classMirror.reflectConstructor(constructor)
   }
 
-//  def from(rs: WrappedResultSet): Unit = fromWrappedResultSet(rs)
-  def fromWrappedResultSet(tbl: SyntaxProvider[A])(rs: WrappedResultSet): Int = {
-//    val constructorTups = constructor
-//      .paramLists
-//      .flatten
-//      .map(p => (p.typeSignature, p.name))
-
+  def fromWRS(rs: WrappedResultSet): A = fromWrappedResultSet(rs)
+  def fromWrappedResultSet(rs: WrappedResultSet): A = {
     val resultMap = rs.toMap()
-
-    println("result map coming")
-    println(resultMap)
-    tbl.resultName.namedColumns.map(_.value).foreach(println)
-    tbl.resultName.columns.map(_.value).foreach(println)
-    println(tbl.resultName.column("id"))
-
-    val constructorArgs = constructor.paramLists.flatten.map( (param: Symbol) => {
-      val paramStr = param.name.toString
-      println(paramStr)
-      val snaked = snakify(paramStr)
-      println(snaked)
-      val paramName = tbl.resultName.column(snaked).value
-      println(paramName)
+    val constructorArgs: List[Any] = constructor.paramLists.flatten.map((param: Symbol) => {
+      val columnName = snakify(param.name.toString)
+      val paramName = tbl.resultName.column(columnName).value
       if(param.typeSignature <:< typeOf[Option[Any]])
         resultMap.get(paramName)
       else
         resultMap.getOrElse(paramName, throw new IllegalArgumentException("Map is missing required parameter named " + paramName))
     })
 
-    println(constructorArgs)
-
-    1
+    constructorMirror(constructorArgs:_*).asInstanceOf[A]
   }
 
   /// Remove plz
@@ -91,7 +68,7 @@ abstract class DBClass[A : TypeTag : ClassTag] extends SQLSyntaxSupport[A] with 
   val tbl: Syntax = this.syntax(tableName)
   lazy val sel: scalikejdbc.SelectSQLBuilder[A] = select.from(this as tbl)
   def printResult = withSQL(sel)
-    .map(fromWrappedResultSet(tbl))
+    .map(fromWRS)
     .list
     .apply
 
